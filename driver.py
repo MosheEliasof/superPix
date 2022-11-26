@@ -412,7 +412,7 @@ if __name__ == "__main__":
                         help="if to use TV smoothness (if false use L2 smoothness)")
 
     args = parser.parse_args()
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda:3" if torch.cuda.is_available() else "cpu"
     model = ASPP_SuperPix(atrous_rates=[2, 4, 8], in_c=5, n_spix=args.n_spix, n_filters=args.n_filters,
                           n_layers=args.n_layers,
                           image_size=args.img_size, use_recons=args.use_recons,
@@ -441,6 +441,8 @@ if __name__ == "__main__":
     recons_img = UnNormalize(mean, std)(recons).squeeze().transpose(0, 2).transpose(0, 1)
 
     mean_img = model.imageFromHardSpix(spix, img)
+
+    plt.rcParams["figure.figsize"] = (50,50)
     fig, ax = plt.subplots(1, 3, )
     ax[0].imshow(mark_boundaries(img.numpy(), spix))
     ax[0].set_title('Spix')
@@ -448,4 +450,7 @@ if __name__ == "__main__":
     ax[1].set_title('Spix Image')
     ax[2].imshow(input_tensor)
     ax[2].set_title('GT Image')
+    _=plt.axis("off")
     plt.show()
+
+    plt.savefig('output.png',dpi=200)
